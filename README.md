@@ -1,4 +1,4 @@
-# YOLO_algorithm_detector
+# YOLO_algorithm
 You are working on a self-driving car. Go you! As a critical component of this project, you'd like to first build a car detection system. The first step is collecting data:
 for this goal, you've mounted a camera to the hood of the car, which takes pictures of the road ahead every few seconds as you drive around. You've gathered all these images into a folder and labelled them by drawing bounding boxes around every car you found.
 
@@ -7,5 +7,14 @@ for this goal, you've mounted a camera to the hood of the car, which takes pictu
 
 ## Model Details
 #### Inputs and outputs
-The input is a batch of images, and each image has the shape (m, 608, 608, 3)
-The output is a list of bounding boxes along with the recognized classes. Each bounding box is represented by 6 numbers  <img src="https://render.githubusercontent.com/render/math?math=(p_c,b_x,b_y,b_h,b_w,c)">. If you expand  <img src="https://render.githubusercontent.com/render/math?math=c">  into an 80-dimensional vector, each bounding box is then represented by 85 numbers.
+* The input is a batch of images, and each image has the shape (m, 608, 608, 3)
+* The output is a list of bounding boxes along with the recognized classes. Each bounding box is represented by 6 numbers  <img src="https://render.githubusercontent.com/render/math?math=(p_c,b_x,b_y,b_h,b_w,c)">. If you expand  <img src="https://render.githubusercontent.com/render/math?math=c">  into an 80-dimensional vector, each bounding box is then represented by 85 numbers.
+
+#### Anchor Boxes
+* Anchor boxes are chosen by exploring the training data to choose reasonable height/width ratios that represent the different classes. In this project, 5 anchor boxes were chosen (to cover the 80 classes), and stored in the file "./model_data/yolo_anchors.txt"
+* The dimension for anchor boxes is the second to last dimension in the encoding: <img src="https://render.githubusercontent.com/render/math?math=(m,n_H,n_W,anchors,classes)"> .
+* The YOLO architecture is: IMAGE (m, 608, 608, 3) -> DEEP CNN -> ENCODING (m, 19, 19, 5, 85).
+
+#### Encoding
+Let's look in greater detail at what this encoding represents.
+
