@@ -19,3 +19,10 @@ for this goal, you've mounted a camera to the hood of the car, which takes pictu
 Let's look in greater detail at what this encoding represents.
 
 ![alt text](https://github.com/ShafieCoder/Car_detector_with-_YOLO/blob/main/Images_folder/encoding.png?raw=true)
+
+If the center/midpoint of an object falls into a grid cell, that grid cell is responsible for detecting that object.
+
+Since we're using 5 anchor boxes, each of the 19 x19 cells thus encodes information about 5 boxes. Anchor boxes are defined only by their width and height.
+
+For simplicity, we'll flatten the last two dimensions of the shape (19, 19, 5, 85) encoding, so the output of the Deep CNN is (19, 19, 425). See in the following Figure.
+![alt text](https://github.com/ShafieCoder/Car_detector_with-_YOLO/blob/main/Images_folder/flatten.png?raw=true)
