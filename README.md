@@ -18,3 +18,4 @@ for this goal, you've mounted a camera to the hood of the car, which takes pictu
 #### Encoding
 Let's look in greater detail at what this encoding represents.
 
+![alt text](https://github.com/ShafieCoder/Car_detector_with-_YOLO/blob/main/Images_folder/encoding.png?raw=true)
