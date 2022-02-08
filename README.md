@@ -94,7 +94,7 @@ We are now ready to implement non-max suppression. The key steps are:
 
 This will remove all boxes that have a large overlap with the selected boxes. Only the "best" boxes remain.
 We Implement yolo_non_max_suppression() using TensorFlow. TensorFlow has two built-in functions that are used to implement non-max suppression (so we don't actually need to use our iou() implementation):
-* [tf.image.non_max_suppression()] (https://www.tensorflow.org/api_docs/python/tf/image/non_max_suppression)
+* [tf.image.non_max_suppression()](https://www.tensorflow.org/api_docs/python/tf/image/non_max_suppression)
 * [tf.gather()](https://www.tensorflow.org/api_docs/python/tf/gather)
   
   #### 4. Wrapping Up the Filtering
