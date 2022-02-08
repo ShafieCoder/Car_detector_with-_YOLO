@@ -84,5 +84,37 @@ In the first step we implement yolo_filter_boxes(). To implement this function, 
     * xi_2 = minimum of the x2 coordinates of the two boxes
     * yi_2 = minimum of the y2 coordinates of the two boxes
     * inter_area =  You can use max(height, 0) and max(width, 0)
+
+#### 3. YOLO Non-max Suppression
+We are now ready to implement non-max suppression. The key steps are:
+
+1. Select the box that has the highest score.
+2. Compute the overlap of this box with all other boxes, and remove boxes that overlap significantly (iou >= iou_threshold).
+3. Go back to step 1 and iterate until there are no more boxes with a lower score than the currently selected box.
+
+This will remove all boxes that have a large overlap with the selected boxes. Only the "best" boxes remain.
+We Implement yolo_non_max_suppression() using TensorFlow. TensorFlow has two built-in functions that are used to implement non-max suppression (so we don't actually need to use our iou() implementation):
+* [tf.image.non_max_suppression()] (https://www.tensorflow.org/api_docs/python/tf/image/non_max_suppression)
+* [tf.gather()](https://www.tensorflow.org/api_docs/python/tf/gather)
   
+  #### 4. Wrapping Up the Filtering
+ It's time to implement a function taking the output of the deep CNN (the 19x19x5x85 dimensional encoding) and filtering through all the boxes using the functions you've just implemented. 
+ 
+ Implement yolo_eval() which takes the output of the YOLO encoding and filters the boxes using score threshold and NMS. There's just one last implementational detail you have to know. There're a few ways of representing boxes, such as via their corners or via their midpoint and height/width. YOLO converts between a few such formats at different times, using the following functions :
+ 
+ boxes = yolo_boxes_to_corners(box_xy, box_wh)
+ 
+ which converts the yolo box coordinates (x,y,w,h) to box corners' coordinates <img src="https://render.githubusercontent.com/render/math?math=(x_1, y_1, x_2, y_2)"> to fit the input of yolo_filter_boxes.
+ 
+ boxes = scale_boxes(boxes, image_shape)
+ 
+ YOLO's network was trained to run on 608x608 images. If you are testing this data on a different size image -- for example, the car detection dataset had 720x1280 images -- this step rescales the boxes so that they can be plotted on top of the original 720x1280 image.
+ 
+ ## Test YOLO Pre-trained Model on Images 
+ Now we are going to use a pre-trained model and test it on the car detection dataset. For this goal, we do following steps:
+ 
+ #### 1.  Defining Classes, Anchors and Image Shape
+ We're trying to detect 80 classes, and are using 5 anchor boxes. The information on the 80 classes and 5 boxes is gathered in two files: "coco_classes.txt" and "yolo_anchors.txt". You'll read class names and anchors from text files. The car detection dataset has 720x1280 images, which are pre-processed into 608x608 images.
+ 
+ 
 
