@@ -117,7 +117,52 @@ We Implement yolo_non_max_suppression() using TensorFlow. TensorFlow has two bui
  We're trying to detect 80 classes, and are using 5 anchor boxes. The information on the 80 classes and 5 boxes is gathered in two files: "coco_classes.txt" and "yolo_anchors.txt". We'll read class names and anchors from text files. The car detection dataset has 720x1280 images, which are pre-processed into 608x608 images.
  
  #### 2.  Loading a Pre-trained Model
- Training a YOLO model takes a very long time and requires a fairly large dataset of labelled bounding boxes for a large range of target classes. We are going to load an existing pre-trained Keras YOLO model stored in "yolo.h5". These weights come from the official YOLO website, and were converted using a function written by Allan Zelener. References are at the end of this notebook. Technically, these are the parameters from the "YOLOv2" model, but are simply referred to as "YOLO" in this notebook.
+ Training a YOLO model takes a very long time and requires a fairly large dataset of labelled bounding boxes for a large range of target classes. We should load an existing pre-trained Keras YOLO model. The weights come from the official YOLO website, and were converted using a function written by Allan Zelener. References are at the end of the Readme. Technically, these are the parameters from the "YOLOv2" model, but are simply referred to as "YOLO" in this Readme.
  
+ __Reminder__: This model converts a preprocessed batch of input images (shape: (m, 608, 608, 3)) into a tensor of shape (m, 19, 19, 5, 85).
  
+ #### 3. Convert Output of the Model to Usable Bounding Box Tensors
+ The output of yolo_model is a (m, 19, 19, 5, 85) tensor that needs to pass through non-trivial processing and conversion. We will need to call yolo_head to format the encoding of the model we got from yolo_model into something decipherable:
+ 
+ yolo_model_outputs = yolo_model(image_data) yolo_outputs = yolo_head(yolo_model_outputs, anchors, len(class_names)) The variable yolo_outputs will be defined as a set of 4 tensors that we can then use as input by our yolo_eval function.
+ 
+ #### 4. Filtering Boxes
+ yolo_outputs gave us all the predicted boxes of yolo_model in the correct format. To perform filtering and select only the best boxes, we will call yolo_eval, which we had previously implemented, to do so:
+ 
+ out_scores, out_boxes, out_classes = yolo_eval(yolo_outputs, [image.size[1],  image.size[0]], 10, 0.3, 0.5)
+ 
+ #### 5. Run the YOLO on an Image
+ Let the fun begin! We will create a graph that can be summarized as follows:
+ 
+ yolo_model.input is given to yolo_model. The model is used to compute the output yolo_model.output yolo_model.output is processed by yolo_head. It gives us yolo_outputs yolo_outputs goes through a filtering function, yolo_eval. It outputs our predictions: out_scores, out_boxes, out_classes.
+ 
+ Now, we have implemented the predict(image_file) function, which runs the graph to test YOLO on an image to compute out_scores, out_boxes, out_classes.
+ 
+ The code below also uses the following function:
+ 
+ image, image_data = preprocess_image("images/" + image_file, model_image_size = (608, 608))
+ 
+ which opens the image file and scales, reshapes and normalizes the image. It returns the outputs:
+ 
+image: a python (PIL) representation of our image used for drawing boxes. We won't need to use it.
+image_data: a numpy-array representing the image. This will be the input to the CNN.
 
+## Summary for YOLO
+* Input image (608, 608, 3)
+* The input image goes through a CNN, resulting in a (19,19,5,85) dimensional output.
+* After flattening the last two dimensions, the output is a volume of shape (19, 19, 425):
+  * Each cell in a 19x19 grid over the input image gives 425 numbers.
+  * 425 = 5 x 85 because each cell contains predictions for 5 boxes, corresponding to 5 anchor boxes, as seen in lecture.
+  * 85 = 5 + 80 where 5 is because  <img src="https://render.githubusercontent.com/render/math?math=(p_c,b_x,b_y,b_h,b_w)"> has 5 numbers, and 80 is the number of classes we'd like to detect.
+* You then select only few boxes based on:
+  * Score-thresholding: throw away boxes that have detected a class with a score less than the threshold
+  * Non-max suppression: Compute the Intersection over Union and avoid selecting overlapping boxes
+* This gives us YOLO's final output.
+
+## References
+The ideas presented here came primarily from the two YOLO papers. The implementation here also took significant inspiration and used many components from Allan Zelener's GitHub repository and Convolutional Neural Network course taught by Andrew Ng in Coursera. The pre-trained weights used in this exercise came from the official YOLO website.
+
+* Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi - [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/abs/1506.02640) (2015)
+* Joseph Redmon, Ali Farhadi - [YOLO9000: Better, Faster, Stronger](https://arxiv.org/abs/1612.08242) (2016)
+* Allan Zelener - [YAD2K: Yet Another Darknet 2 Keras](https://github.com/allanzelener/YAD2K)
+* The official YOLO website [(https://pjreddie.com/darknet/yolo/)](https://pjreddie.com/darknet/yolo/)
